@@ -27,36 +27,36 @@ public class PhotoController{
     private final S3Service s3Service;
     private final PhotoService photoService;
 
-//    @PostMapping
-//    @ApiOperation(value = "사진 저장 api", notes = "헤더로 토큰, 바디로 이미지 주면돼")
-//    @ApiResponses({
-//            @ApiResponse(code = 200, message = "성공"),
-//            @ApiResponse(code = 401, message = "실패")
-//    })
-//    public ResponseEntity<?> savePhoto(@RequestPart MultipartFile photo,
-//                                       Authentication authentication)
-//            throws IOException{
-//        String email=authentication.getName();
-//        String url=s3Service.saveFile("photo",email,photo);
-//        Long userId=s3Service.getUserId(email);
-//        photoService.savePhoto(userId,url);
-//        return ResponseEntity.ok().build();
-//    }
-@PostMapping
-@ApiOperation(value = "사진 저장 api", notes = "헤더로 토큰, 바디로 이미지 주면돼")
-@ApiResponses({
-        @ApiResponse(code = 200, message = "성공"),
-        @ApiResponse(code = 401, message = "실패")
-})
-public ResponseEntity<?> savePhoto(@RequestPart String base64Photo,
-                                   Authentication authentication)
-        throws IOException{
-    String email=authentication.getName();
-    Long userId=s3Service.getUserId(email);
-    String url=s3Service.saveBase64Image("photo",userId,base64Photo);
-    photoService.savePhoto(userId,url);
-    return ResponseEntity.ok().build();
-}
+    @PostMapping
+    @ApiOperation(value = "사진 저장 api", notes = "헤더로 토큰, 바디로 이미지 주면돼")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "성공"),
+            @ApiResponse(code = 401, message = "실패")
+    })
+    public ResponseEntity<?> savePhoto(@RequestPart MultipartFile photo,
+                                       Authentication authentication)
+            throws IOException{
+        String email=authentication.getName();
+        String url=s3Service.saveFile("photo",email,photo);
+        Long userId=s3Service.getUserId(email);
+        photoService.savePhoto(userId,url);
+        return ResponseEntity.ok().build();
+    }
+//@PostMapping
+//@ApiOperation(value = "사진 저장 api", notes = "헤더로 토큰, 바디로 이미지 주면돼")
+//@ApiResponses({
+//        @ApiResponse(code = 200, message = "성공"),
+//        @ApiResponse(code = 401, message = "실패")
+//})
+//public ResponseEntity<?> savePhoto(@RequestPart String base64Photo,
+//                                   Authentication authentication)
+//        throws IOException{
+//    String email=authentication.getName();
+//    Long userId=s3Service.getUserId(email);
+//    String url=s3Service.saveBase64Image("photo",userId,base64Photo);
+//    photoService.savePhoto(userId,url);
+//    return ResponseEntity.ok().build();
+//}
 
     @GetMapping
     @ApiOperation(value = "사진 리스트 불러오는 api", notes = "헤더로 토큰 주셔야됩니다")
