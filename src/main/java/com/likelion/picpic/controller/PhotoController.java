@@ -22,6 +22,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @RestController
 @Api(tags = "Photo",description = "프레임 적용한 사진 관련 로직 작성")
+@CrossOrigin(origins = "http://localhost:5173")
 public class PhotoController{
 
     private final S3Service s3Service;
