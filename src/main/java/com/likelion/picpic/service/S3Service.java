@@ -1,10 +1,12 @@
 package com.likelion.picpic.service;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.likelion.picpic.domain.User;
 import com.likelion.picpic.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Pattern;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -153,6 +156,28 @@ public class S3Service {
         } while (objectListing.isTruncated());
 
         return imageUrls;
+    }
+
+    public String saveBase64Image(String directory, Long userId, String base64Image) {
+        // 파일 이름 생성
+        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
+        String fileName = directory + "/" + userId + "/" + timeStamp + ".jpg";
+
+        try {
+            // Base64 인코딩된 문자열을 바이트 배열로 디코딩
+            byte[] decodedBytes = Base64.decodeBase64(base64Image);
+
+            // S3에 업로드
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedBytes);
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(decodedBytes.length);
+            metadata.setContentType("image/png");
+
+            amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, metadata));
+            return amazonS3.getUrl(bucket, fileName).toString();
+        } catch (AmazonServiceException e) {
+            throw new RuntimeException("S3 업로드 중 오류 발생", e);
+        }
     }
 }
 
