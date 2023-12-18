@@ -14,8 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Pattern;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -94,48 +92,22 @@ public class S3Service {
         Long userId = userService.findUserId(email);
 
         String originalFilename = extractFilenameFromS3Url(url);
-        System.out.println("originalFilename = " + originalFilename);
-        System.out.println(originalFilename);
-        amazonS3.deleteObject(bucket, "frame/" + userId + "/" + originalFilename);
+        amazonS3.deleteObject(new DeleteObjectRequest(bucket, "frame/" + userId + "/" + originalFilename));
     }
 
     private static String extractFilenameFromS3Url(String s3Url) {
-        if (s3Url == null || !s3Url.startsWith("https://")) {
-            throw new IllegalArgumentException("Invalid S3 URL: URL is null or missing proper protocol");
-        }
-
         try {
             URL url = new URL(s3Url);
             String path = url.getPath();
             String[] pathComponents = path.split("/");
-            if (pathComponents.length == 0) {
-                throw new IllegalArgumentException("Invalid S3 URL: No path found in URL");
-            }
-
             String filename = pathComponents[pathComponents.length - 1];
             // URL 디코딩 후 파일 이름 추출
-            return java.net.URLDecoder.decode(filename, StandardCharsets.UTF_8.name());
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("Invalid S3 URL: Malformed URL", e);
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException("Invalid S3 URL: Unsupported Encoding", e);
+            String decodedFilename = java.net.URLDecoder.decode(filename, StandardCharsets.UTF_8.name());
+            return decodedFilename;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid S3 URL", e);
         }
     }
-
-
-//    private static String extractFilenameFromS3Url(String s3Url) {
-//        try {
-//            URL url = new URL(s3Url);
-//            String path = url.getPath();
-//            String[] pathComponents = path.split("/");
-//            String filename = pathComponents[pathComponents.length - 1];
-//            // URL 디코딩 후 파일 이름 추출
-//            String decodedFilename = java.net.URLDecoder.decode(filename, StandardCharsets.UTF_8.name());
-//            return decodedFilename;
-//        } catch (Exception e) {
-//            throw new IllegalArgumentException("Invalid S3 URL", e);
-//        }
-//    }
 
     //userId로 이미지 저장된거 다 가져오기
     public List<String> findImageUrlsByUserId(String email, String directory) {
@@ -183,4 +155,5 @@ public class S3Service {
         return imageUrls;
     }
 }
+
 
